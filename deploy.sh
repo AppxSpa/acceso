@@ -1,3 +1,5 @@
+sudo docker pull mirkogutierrezappx/acceso:latest
+
 sudo docker stop acceso-container 2>/dev/null
 sudo docker rm acceso-container 2>/dev/null
 
@@ -9,4 +11,6 @@ sudo docker run \
            --env-file .env \
            --network appx \
            --add-host=host.docker.internal:host-gateway \
-           --name acceso-container acceso
+           --name acceso-container acceso \
+            mirkogutierrezappx/acceso:latest
+
