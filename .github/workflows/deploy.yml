@@ -11,6 +11,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Prepare Image Name
+        id: prep
+        run: |
+          # Convertimos "AppxSpa/Acceso" a "appxspa/acceso" automáticamente
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "tag=ghcr.io/${REPO_LOWER}:latest" >> $GITHUB_OUTPUT
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -23,21 +30,7 @@ jobs:
         with:
           context: .
           push: true
-          # Esta línea convierte automáticamente "AppxSpa/Acceso" a "appxspa/acceso"
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
-          # Forzamos la etiqueta a minúsculas para evitar el error de Docker
+          # Usamos el tag que convertimos a minúsculas en el paso 'prep'
+          tags: ${{ steps.prep.outputs.tag }}
           labels: |
             org.opencontainers.image.title=${{ github.event.repository.name }}
-        env:
-          # Convertimos el owner a minúsculas antes de usarlo
-          IMAGE_NAME: ${{ github.repository }}
-
-      - name: Convert to lowercase
-        id: prep
-        run: |
-          # Pequeño script para asegurar que la ruta sea siempre minúscula
-          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          echo "repo_lower=${REPO_LOWER}" >> $GITHUB_OUTPUT
-
-      # Paso final corregido con la variable
