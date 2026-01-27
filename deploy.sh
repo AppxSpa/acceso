@@ -1,18 +1,20 @@
 #!/bin/bash
 
 # =========================================================
-# CONFIGURACIÓN DEL MICROSERVICIO
+# CONFIGURACIÓN DEL MICROSERVICIO (Actualizado a GHCR)
 # =========================================================
-NOMBRE_APP="acceso"                 # Nombre del contenedor
-PUERTO="8082"                       # Puerto que usa la App
-IMAGEN_HUB="mirkogutierrezappx/acceso" # Repositorio en Docker Hub
+NOMBRE_APP="acceso"
+PUERTO="8081"
+# Cambiamos la ruta de Docker Hub a GitHub Container Registry
+IMAGEN_HUB="ghcr.io/mirkogutierrez/acceso" 
 # =========================================================
 
 OPCION=${1:-"dev"}
 
 case $OPCION in
     "prod")
-        echo "--- MODO PRODUCCIÓN: Bajando imagen de la nube ($IMAGEN_HUB) ---"
+        echo "--- MODO PRODUCCIÓN: Bajando de GitHub Packages ($IMAGEN_HUB) ---"
+        # Ahora el pull se hace desde el registro privado de GitHub
         docker pull $IMAGEN_HUB:latest
         TARGET_IMAGE="$IMAGEN_HUB:latest"
         ;;
@@ -33,10 +35,11 @@ docker run \
            --restart always \
            -d -p ${PUERTO}:${PUERTO} \
            --env-file .env \
-           --network appx \
+           --network laflorida \
            --add-host=host.docker.internal:host-gateway \
            --name ${NOMBRE_APP}-container \
            $TARGET_IMAGE
 
+# Limpia imágenes antiguas para no llenar el disco del PC de la oficina
 docker image prune -f
 echo "--- Proceso Terminado ($OPCION) ---"
